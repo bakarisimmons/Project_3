@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="graph.js" defer></script>
+  <title>Chicago Building Energy Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
+  <style>
+    #map {
+      height: 500px;
+    }
+    #plot {
+      height: 500px;
+    }
+  </style>
+  <head>
+    <link rel="stylesheet" href="style.css">
+  </head>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12 jumbotron text-center">
+        <h1>Chicago Building Energy Data Dashboard</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Energy Use By Year</h3>
+          </div>
+          </div>
+          <div class="panel-body">
+            <select id="selDataset" class="form-control"></select>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div id="map" class="col-md-10"></div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="script.js"></script>
+    <style>
+      #map {
+        height: 45vh;
+        width: 100%;
+      }
+    </style>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Building Energy Rating by Year</h3>
+          </div>
+          <div class="panel-body">
+            <div id="chart1"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Building Count by Community Area</h3>
+          </div>
+          <div class="panel-body">
+            <div id="chart2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Building Count by Community Area</h3>
+        </div>
+        <div class="panel-body">
+          <div id="chart3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Building Count by Community Area</h3>
+      </div>
+      <div class="panel-body">
+        <div id="chart4"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-8">
+      <div id="map"></div>
+    </div>
+    <div class="col-md-4">
+      <div id="plot"></div>
+      <select id="year-dropdown"></select>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+<script>
+  var myMap = L.map("map", {
+    center: [41.8781, -87.6298],
+    zoom: 10
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+  }).addTo(myMap);
+  var geojson;
+  function getColor(d) {
+    return d > 50000 ? '#800026' :
+           d > 40000  ? '#BD0026' :
+           d > 30000  ? '#E31A1C' :
+           d > 20000  ? '#FC4E2A' :
+           d > 10000   ? '#FD8D3C' :
+           d > 5000   ? '#FEB24C' :
+           d > 1000   ? '#FED976' :
+                        '#FFEDA0';
+  }
+  function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.electricity_use),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    };
+  }
+  function highlightFeature(e) {
+    var layer = e.target;
+    layer.setStyle({
+        weight: 5,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.7
+    });
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+</body>
+</html>
